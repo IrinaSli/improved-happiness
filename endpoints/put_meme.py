@@ -1,5 +1,5 @@
 import requests
-from test_api_memes.endpoints.endpoint import Endpoint
+from endpoints.endpoint import Endpoint
 
 
 class PutMeme(Endpoint):

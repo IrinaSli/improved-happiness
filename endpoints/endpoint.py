@@ -16,8 +16,11 @@ class Endpoint:
     def check_response_tags_correct(self, tags):
         assert self.json['tags'] == tags
 
-    def check_that_delete_is_successful(self, meme_id):
-        assert self.response.text == f"Meme with id {meme_id} successfully deleted"
+    def check_response_url_correct(self, url):
+        assert self.json['url'] == url
+
+    def check_response_info_correct(self, info):
+        assert self.json['info'] == info
 
     #for negative
     def check_status_is_404(self):
