@@ -17,13 +17,8 @@ def test_get_all_memes(auth_user, get_all_memes_endpoint):
     get_all_memes_endpoint.get_memes()
     get_all_memes_endpoint.check_status_is_200()
 
-def test_get_one_meme(post_meme_endpoint, get_all_memes_endpoint):
-    payload = {"text": "new meme 5",
-               "url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.bbc.com%2Fbbcthree%2Farticle%2Fe6511d6a-ea8c-4e27-aac3-728205903635&psig=AOvVaw19wMSziOILgg7_94nOrjtk&ust=1748937073618000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCIjKxbug0o0DFQAAAAAdAAAAABAE",
-               "tags": ["spider", "baby"],
-               "info": {"objects": ["girl", "house"]}}
-    post_meme_endpoint.post_meme(payload)
-    meme_id = post_meme_endpoint.json["id"]
+def test_get_one_meme(create_test_meme, get_all_memes_endpoint):
+    meme_id = create_test_meme
     get_all_memes_endpoint.get_one_meme(meme_id)
     get_all_memes_endpoint.check_status_is_200()
 
@@ -31,38 +26,33 @@ def test_get_one_meme(post_meme_endpoint, get_all_memes_endpoint):
 def test_post_new_meme(post_meme_endpoint, delete_meme_endpoint, test_data):
     post_meme_endpoint.post_meme(payload=test_data)
     post_meme_endpoint.check_response_text_is_correct(test_data["text"])
+    post_meme_endpoint.check_response_url_correct(test_data["url"])
     post_meme_endpoint.check_response_tags_correct(test_data["tags"])
+    post_meme_endpoint.check_response_info_correct(test_data["info"])
     post_meme_endpoint.check_status_is_200()
     meme_id = post_meme_endpoint.json["id"]
     delete_meme_endpoint.delete_meme(meme_id)
 
-def test_put_meme(post_meme_endpoint, put_meme_endpoint, delete_meme_endpoint):
-    payload = {"text": "new meme 5",
-               "url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.bbc.com%2Fbbcthree%2Farticle%2Fe6511d6a-ea8c-4e27-aac3-728205903635&psig=AOvVaw19wMSziOILgg7_94nOrjtk&ust=1748937073618000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCIjKxbug0o0DFQAAAAAdAAAAABAE",
-               "tags": ["spider", "baby"],
-               "info": {"objects": ["girl", "house"]}}
-    post_meme_endpoint.post_meme(payload)
-    meme_id = post_meme_endpoint.json["id"]
+def test_put_meme(create_test_meme, put_meme_endpoint):
+    meme_id = create_test_meme
     new_payload = {"id": meme_id,
                    "text": "edited name",
                    "url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.bbc.com%2Fbbcthree%2Farticle%2Fe6511d6a-ea8c-4e27-aac3-728205903635&psig=AOvVaw19wMSziOILgg7_94nOrjtk&ust=1748937073618000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCIjKxbug0o0DFQAAAAAdAAAAABAE",
                    "tags": ["spider", "cry"],
-                   "info": {"objects": ["girl", "house"]}}
+                   "info": {"objects": ["girl", "new"]}}
     put_meme_endpoint.put_meme(meme_id, new_payload)
     put_meme_endpoint.check_status_is_200()
     put_meme_endpoint.check_response_text_is_correct(new_payload["text"])
-    delete_meme_endpoint.delete_meme(meme_id)
+    put_meme_endpoint.check_response_url_correct(new_payload["url"])
+    put_meme_endpoint.check_response_tags_correct(new_payload["tags"])
+    put_meme_endpoint.check_response_info_correct(new_payload["info"])
 
-def test_delete_meme(post_meme_endpoint, delete_meme_endpoint):
-    payload =  {"text": "new meme 5",
-    "url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.bbc.com%2Fbbcthree%2Farticle%2Fe6511d6a-ea8c-4e27-aac3-728205903635&psig=AOvVaw19wMSziOILgg7_94nOrjtk&ust=1748937073618000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCIjKxbug0o0DFQAAAAAdAAAAABAE",
-    "tags": ["spider", "baby"],
-    "info": {"objects": ["girl", "house"]}}
-    post_meme_endpoint.post_meme(payload)
-    meme_id = post_meme_endpoint.json["id"]
+def test_delete_meme(create_test_meme, delete_meme_endpoint, get_all_memes_endpoint):
+    meme_id = create_test_meme
     delete_meme_endpoint.delete_meme(meme_id)
     delete_meme_endpoint.check_status_is_200()
-    delete_meme_endpoint.check_that_delete_is_successful(meme_id)
+    get_all_memes_endpoint.get_one_meme(meme_id)
+    get_all_memes_endpoint.check_status_is_404()
 
 #negative tests
 def test_get_meme_with_wrong_id(get_all_memes_endpoint):
